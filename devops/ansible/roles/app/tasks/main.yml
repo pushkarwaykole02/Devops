@@ -1,0 +1,65 @@
+---
+# =========================================================================
+# Ansible Role: Application Deployment & Verification (Idempotent)
+# =========================================================================
+
+- name: Create application deployment directory
+  ansible.builtin.file:
+    path: "{{ app_deploy_dir }}"
+    state: directory
+    owner: "{{ app_user }}"
+    group: "{{ app_group }}"
+    mode: '0755'
+
+- name: Template application environment configuration (.env)
+  ansible.builtin.template:
+    src: .env.j2
+    dest: "{{ app_deploy_dir }}/.env"
+    owner: "{{ app_user }}"
+    group: "{{ app_group }}"
+    mode: '0600'
+  notify: Restart Application
+
+- name: Copy Docker Compose file to deployment target
+  ansible.builtin.copy:
+    src: "{{ playbook_dir }}/../docker-compose.yml"
+    dest: "{{ app_deploy_dir }}/docker-compose.yml"
+    owner: "{{ app_user }}"
+    group: "{{ app_group }}"
+    mode: '0644'
+  notify: Restart Application
+
+- name: Deploy application stack using Docker Compose
+  ansible.builtin.command:
+    cmd: docker compose up -d --remove-orphans
+    chdir: "{{ app_deploy_dir }}"
+  register: compose_output
+  changed_when: "'Started' in compose_output.stdout or 'Created' in compose_output.stdout"
+
+- name: Wait for Spring Boot Backend Health Endpoint
+  ansible.builtin.uri:
+    url: "http://localhost:8080/api/health"
+    method: GET
+    status_code: 200
+  register: backend_health
+  until: backend_health.status == 200
+  retries: 15
+  delay: 4
+
+- name: Verify Frontend Web and Reverse Proxy Response
+  ansible.builtin.uri:
+    url: "http://localhost/"
+    method: GET
+    status_code: 200
+  register: frontend_health
+  until: frontend_health.status == 200
+  retries: 10
+  delay: 2
+
+- name: Display Deployment Verification Report
+  ansible.builtin.debug:
+    msg:
+      - "Deployment Status: SUCCESS"
+      - "Backend Health: UP ({{ backend_health.json.service }})"
+      - "Deployed Version: {{ app_version }}"
+      - "Frontend Web HTTP: {{ frontend_health.status }}"
