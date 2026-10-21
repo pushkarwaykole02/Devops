@@ -1,0 +1,41 @@
+---
+# =========================================================================
+# Ansible Role: Docker & Prerequisites Installation (Idempotent)
+# =========================================================================
+
+- name: Update apt package cache
+  ansible.builtin.apt:
+    update_cache: yes
+    cache_valid_time: 3600
+  when: ansible_os_family == "Debian"
+
+- name: Install prerequisite packages
+  ansible.builtin.package:
+    name:
+      - curl
+      - git
+      - ca-certificates
+      - gnupg
+      - lsb-release
+    state: present
+
+- name: Ensure Docker service is installed and running
+  ansible.builtin.service:
+    name: docker
+    state: started
+    enabled: yes
+  ignore_errors: yes
+
+- name: Ensure deploy user group exists
+  ansible.builtin.group:
+    name: "{{ app_group }}"
+    state: present
+
+- name: Ensure deploy user exists
+  ansible.builtin.user:
+    name: "{{ app_user }}"
+    group: "{{ app_group }}"
+    groups: docker
+    append: yes
+    shell: /bin/bash
+    state: present

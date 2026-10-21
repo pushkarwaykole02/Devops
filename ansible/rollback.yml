@@ -1,0 +1,41 @@
+---
+# =========================================================================
+# Ansible Automated Rollback Playbook
+# Reverts deployment to previous stable version or tag
+# =========================================================================
+
+- name: Rollback Broadband Installation Workflow Application
+  hosts: telecom_servers
+  become: yes
+  vars:
+    rollback_version: "{{ rollback_tag | default('1.0.0') }}"
+
+  tasks:
+    - name: Announce Rollback Procedure
+      ansible.builtin.debug:
+        msg: "Initiating emergency rollback to version tag: {{ rollback_version }}"
+
+    - name: Update version in deployment environment file
+      ansible.builtin.lineinfile:
+        path: "{{ app_deploy_dir }}/.env"
+        regexp: '^IMAGE_TAG='
+        line: "IMAGE_TAG={{ rollback_version }}"
+
+    - name: Re-deploy stable container release
+      ansible.builtin.command:
+        cmd: docker compose up -d --remove-orphans
+        chdir: "{{ app_deploy_dir }}"
+
+    - name: Verify health of rolled-back services
+      ansible.builtin.uri:
+        url: "http://localhost:8080/api/health"
+        method: GET
+        status_code: 200
+      register: health_result
+      until: health_result.status == 200
+      retries: 10
+      delay: 3
+
+    - name: Confirm Rollback Success
+      ansible.builtin.debug:
+        msg: "Application successfully rolled back to {{ rollback_version }} and healthy."

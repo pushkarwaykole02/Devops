@@ -1,0 +1,22 @@
+---
+# =========================================================================
+# Ansible Master Playbook: Provisioning & Deployment
+# Project: Automated Broadband Installation Workflow
+# Student: Pushkar Waykole (23102C0012)
+# =========================================================================
+
+- name: Provision Infrastructure & Deploy Broadband Workflow
+  hosts: telecom_servers
+  become: yes
+  vars:
+    app_version: "{{ lookup('env', 'IMAGE_TAG') | default('1.0.0', true) }}"
+
+  roles:
+    - docker
+    - app
+
+  handlers:
+    - name: Restart Application
+      ansible.builtin.command:
+        cmd: docker compose restart
+        chdir: "{{ app_deploy_dir }}"

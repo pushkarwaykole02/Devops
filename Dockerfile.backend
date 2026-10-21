@@ -1,0 +1,49 @@
+# =========================================================================
+# Stage 1: Build Java Spring Boot Application
+# =========================================================================
+FROM eclipse-temurin:21-jdk-alpine AS builder
+
+WORKDIR /app
+
+# Copy Maven wrapper and pom
+COPY .mvn/ .mvn/
+COPY mvnw pom.xml ./
+RUN chmod +x ./mvnw
+
+# Resolve dependencies cache
+RUN ./mvnw dependency:go-offline -B
+
+# Copy source code and build
+COPY src ./src
+RUN ./mvnw clean package -DskipTests
+
+# =========================================================================
+# Stage 2: Minimal Production JRE Runtime
+# =========================================================================
+FROM eclipse-temurin:21-jre-alpine
+
+WORKDIR /app
+
+# Install curl for healthcheck
+RUN apk add --no-cache curl
+
+# Create non-root application user
+RUN addgroup -S telecom && adduser -S telecom -G telecom
+USER telecom:telecom
+
+# Copy compiled JAR artifact
+COPY --from=builder --chown=telecom:telecom /app/target/*.jar app.jar
+
+# Setup upload directory
+VOLUME /app/uploads
+
+ENV PORT=8080 \
+    SPRING_PROFILES_ACTIVE=prod
+
+EXPOSE 8080
+
+# Health check against Actuator / Health API
+HEALTHCHECK --interval=20s --timeout=5s --start-period=30s --retries=3 \
+  CMD curl -f http://localhost:8080/api/health || exit 1
+
+ENTRYPOINT ["java", "-Djava.security.egd=file:/dev/./urandom", "-jar", "app.jar"]
