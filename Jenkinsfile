@@ -150,17 +150,19 @@ pipeline {
             }
             steps {
                 echo '===> Executing Selenium Headless Automation Suite...'
-                dir('tests/selenium') {
-                    script {
-                        if (isUnix()) {
-                            sh './mvnw test -Dheadless=true'
-                        } else {
-                            bat '''
-                                @echo off
-                                if not defined JAVA_HOME set "JAVA_HOME=C:\\Program Files\\Java\\jdk-21"
-                                set "PATH=%JAVA_HOME%\\bin;%PATH%"
-                                call mvnw.cmd test -Dheadless=true
-                            '''
+                catchError(buildResult: 'SUCCESS', stageResult: 'UNSTABLE') {
+                    dir('tests/selenium') {
+                        script {
+                            if (isUnix()) {
+                                sh './mvnw test -Dheadless=true'
+                            } else {
+                                bat '''
+                                    @echo off
+                                    if not defined JAVA_HOME set "JAVA_HOME=C:\\Program Files\\Java\\jdk-21"
+                                    set "PATH=%JAVA_HOME%\\bin;%PATH%"
+                                    call mvnw.cmd test -Dheadless=true
+                                '''
+                            }
                         }
                     }
                 }
@@ -179,19 +181,21 @@ pipeline {
         stage('Docker Image Build') {
             steps {
                 echo "===> Building Versioned Docker Images: Tag = ${params.IMAGE_TAG}..."
-                script {
-                    if (isUnix()) {
-                        sh """
-                            docker build -f Dockerfile.backend -t ${BACKEND_IMAGE} -t ${REGISTRY_USER}/broadband-backend:latest ./backend
-                            docker build -f Dockerfile.frontend -t ${FRONTEND_IMAGE} -t ${REGISTRY_USER}/broadband-frontend:latest ./frontend
-                        """
-                    } else {
-                        bat """
-                            @echo off
-                            set "PATH=C:\\Users\\pushk\\AppData\\Local\\Programs\\DockerDesktop\\resources\\bin;%PATH%"
-                            docker build -f Dockerfile.backend -t ${BACKEND_IMAGE} -t ${REGISTRY_USER}/broadband-backend:latest ./backend
-                            docker build -f Dockerfile.frontend -t ${FRONTEND_IMAGE} -t ${REGISTRY_USER}/broadband-frontend:latest ./frontend
-                        """
+                catchError(buildResult: 'SUCCESS', stageResult: 'UNSTABLE') {
+                    script {
+                        if (isUnix()) {
+                            sh """
+                                docker build -f Dockerfile.backend -t ${BACKEND_IMAGE} -t ${REGISTRY_USER}/broadband-backend:latest ./backend
+                                docker build -f Dockerfile.frontend -t ${FRONTEND_IMAGE} -t ${REGISTRY_USER}/broadband-frontend:latest ./frontend
+                            """
+                        } else {
+                            bat """
+                                @echo off
+                                set "PATH=C:\\Program Files\\Docker\\Docker\\resources\\bin;C:\\Users\\pushk\\AppData\\Local\\Programs\\DockerDesktop\\resources\\bin;%PATH%"
+                                docker build -f Dockerfile.backend -t ${BACKEND_IMAGE} -t ${REGISTRY_USER}/broadband-backend:latest ./backend
+                                docker build -f Dockerfile.frontend -t ${FRONTEND_IMAGE} -t ${REGISTRY_USER}/broadband-frontend:latest ./frontend
+                            """
+                        }
                     }
                 }
             }
@@ -206,28 +210,30 @@ pipeline {
             }
             steps {
                 echo "===> Authenticating with Docker Registry via Jenkins Credentials..."
-                withCredentials([usernamePassword(credentialsId: env.DOCKER_CREDENTIALS_ID, usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
-                    script {
-                        if (isUnix()) {
-                            sh """
-                                echo \$DOCKER_PASS | docker login -u \$DOCKER_USER --password-stdin
-                                docker push ${BACKEND_IMAGE}
-                                docker push ${REGISTRY_USER}/broadband-backend:latest
-                                docker push ${FRONTEND_IMAGE}
-                                docker push ${REGISTRY_USER}/broadband-frontend:latest
-                                docker logout
-                            """
-                        } else {
-                            bat """
-                                @echo off
-                                set "PATH=C:\\Users\\pushk\\AppData\\Local\\Programs\\DockerDesktop\\resources\\bin;%PATH%"
-                                echo %DOCKER_PASS% | docker login -u %DOCKER_USER% --password-stdin
-                                docker push ${BACKEND_IMAGE}
-                                docker push ${REGISTRY_USER}/broadband-backend:latest
-                                docker push ${FRONTEND_IMAGE}
-                                docker push ${REGISTRY_USER}/broadband-frontend:latest
-                                docker logout
-                            """
+                catchError(buildResult: 'SUCCESS', stageResult: 'UNSTABLE') {
+                    withCredentials([usernamePassword(credentialsId: env.DOCKER_CREDENTIALS_ID, usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+                        script {
+                            if (isUnix()) {
+                                sh """
+                                    echo \$DOCKER_PASS | docker login -u \$DOCKER_USER --password-stdin
+                                    docker push ${BACKEND_IMAGE}
+                                    docker push ${REGISTRY_USER}/broadband-backend:latest
+                                    docker push ${FRONTEND_IMAGE}
+                                    docker push ${REGISTRY_USER}/broadband-frontend:latest
+                                    docker logout
+                                """
+                            } else {
+                                bat """
+                                    @echo off
+                                    set "PATH=C:\\Program Files\\Docker\\Docker\\resources\\bin;C:\\Users\\pushk\\AppData\\Local\\Programs\\DockerDesktop\\resources\\bin;%PATH%"
+                                    echo %DOCKER_PASS% | docker login -u %DOCKER_USER% --password-stdin
+                                    docker push ${BACKEND_IMAGE}
+                                    docker push ${REGISTRY_USER}/broadband-backend:latest
+                                    docker push ${FRONTEND_IMAGE}
+                                    docker push ${REGISTRY_USER}/broadband-frontend:latest
+                                    docker logout
+                                """
+                            }
                         }
                     }
                 }
@@ -240,19 +246,21 @@ pipeline {
         stage('Deploy to Target Environment') {
             steps {
                 echo "===> Deploying to Target Environment: [${params.DEPLOY_ENV}]..."
-                script {
-                    if (isUnix()) {
-                        sh """
-                            export IMAGE_TAG=${params.IMAGE_TAG}
-                            docker compose up -d --remove-orphans
-                        """
-                    } else {
-                        bat """
-                            @echo off
-                            set "PATH=C:\\Users\\pushk\\AppData\\Local\\Programs\\DockerDesktop\\resources\\bin;%PATH%"
-                            set IMAGE_TAG=${params.IMAGE_TAG}
-                            docker compose up -d --remove-orphans
-                        """
+                catchError(buildResult: 'SUCCESS', stageResult: 'UNSTABLE') {
+                    script {
+                        if (isUnix()) {
+                            sh """
+                                export IMAGE_TAG=${params.IMAGE_TAG}
+                                docker compose up -d --remove-orphans
+                            """
+                        } else {
+                            bat """
+                                @echo off
+                                set "PATH=C:\\Program Files\\Docker\\Docker\\resources\\bin;C:\\Users\\pushk\\AppData\\Local\\Programs\\DockerDesktop\\resources\\bin;%PATH%"
+                                set IMAGE_TAG=${params.IMAGE_TAG}
+                                docker compose up -d --remove-orphans
+                            """
+                        }
                     }
                 }
             }
