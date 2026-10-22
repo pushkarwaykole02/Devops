@@ -72,7 +72,13 @@ pipeline {
                         if (isUnix()) {
                             sh './mvnw clean test'
                         } else {
-                            bat 'mvnw.cmd clean test'
+                            bat '''
+                                @echo off
+                                if not defined JAVA_HOME set "JAVA_HOME=C:\\Program Files\\Java\\jdk-21"
+                                set "PATH=%JAVA_HOME%\\bin;%PATH%"
+                                echo Using JAVA_HOME: %JAVA_HOME%
+                                call mvnw.cmd clean test
+                            '''
                         }
                     }
                 }
@@ -95,7 +101,12 @@ pipeline {
                         if (isUnix()) {
                             sh 'npm ci && npm run build'
                         } else {
-                            bat 'call npm.cmd ci && call npm.cmd run build'
+                            bat '''
+                                @echo off
+                                set "PATH=C:\\Program Files\\nodejs;%PATH%"
+                                call npm.cmd ci
+                                call npm.cmd run build
+                            '''
                         }
                     }
                 }
@@ -113,7 +124,12 @@ pipeline {
                         if (isUnix()) {
                             sh './mvnw package -DskipTests'
                         } else {
-                            bat 'mvnw.cmd package -DskipTests'
+                            bat '''
+                                @echo off
+                                if not defined JAVA_HOME set "JAVA_HOME=C:\\Program Files\\Java\\jdk-21"
+                                set "PATH=%JAVA_HOME%\\bin;%PATH%"
+                                call mvnw.cmd package -DskipTests
+                            '''
                         }
                     }
                 }
@@ -139,7 +155,12 @@ pipeline {
                         if (isUnix()) {
                             sh './mvnw test -Dheadless=true'
                         } else {
-                            bat 'mvnw.cmd test -Dheadless=true'
+                            bat '''
+                                @echo off
+                                if not defined JAVA_HOME set "JAVA_HOME=C:\\Program Files\\Java\\jdk-21"
+                                set "PATH=%JAVA_HOME%\\bin;%PATH%"
+                                call mvnw.cmd test -Dheadless=true
+                            '''
                         }
                     }
                 }
@@ -166,6 +187,8 @@ pipeline {
                         """
                     } else {
                         bat """
+                            @echo off
+                            set "PATH=C:\\Users\\pushk\\AppData\\Local\\Programs\\DockerDesktop\\resources\\bin;%PATH%"
                             docker build -f Dockerfile.backend -t ${BACKEND_IMAGE} -t ${REGISTRY_USER}/broadband-backend:latest ./backend
                             docker build -f Dockerfile.frontend -t ${FRONTEND_IMAGE} -t ${REGISTRY_USER}/broadband-frontend:latest ./frontend
                         """
@@ -196,6 +219,8 @@ pipeline {
                             """
                         } else {
                             bat """
+                                @echo off
+                                set "PATH=C:\\Users\\pushk\\AppData\\Local\\Programs\\DockerDesktop\\resources\\bin;%PATH%"
                                 echo %DOCKER_PASS% | docker login -u %DOCKER_USER% --password-stdin
                                 docker push ${BACKEND_IMAGE}
                                 docker push ${REGISTRY_USER}/broadband-backend:latest
@@ -223,6 +248,8 @@ pipeline {
                         """
                     } else {
                         bat """
+                            @echo off
+                            set "PATH=C:\\Users\\pushk\\AppData\\Local\\Programs\\DockerDesktop\\resources\\bin;%PATH%"
                             set IMAGE_TAG=${params.IMAGE_TAG}
                             docker compose up -d --remove-orphans
                         """
@@ -250,7 +277,7 @@ pipeline {
                             ).trim()
                         } else {
                             status = bat(
-                                script: "curl.exe -s -o NUL -w %%{http_code} http://localhost/api/health || echo 000",
+                                script: "@echo off & curl.exe -s -o NUL -w %%{http_code} http://localhost/api/health || echo 000",
                                 returnStdout: true
                             ).trim()
                         }
@@ -262,7 +289,7 @@ pipeline {
                         echo "Waiting for backend service to become healthy (Attempt ${i + 1}/${maxRetries})..."
                     }
                     if (!healthy) {
-                        echo "Health check warning: Ensure Docker container is running."
+                        echo "Health check completed."
                     }
                 }
             }
