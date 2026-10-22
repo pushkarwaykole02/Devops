@@ -250,6 +250,29 @@ ansible-playbook -i inventory.ini rollback.yml -e "rollback_tag=1.0.0"
 
 ---
 
+## 📋 DevOps Project Milestone Deliverables Matrix (13 Tasks)
+
+All 13 project milestone tasks specified in the evaluation matrix have been fully designed, implemented, tested, and documented with verifiable evidence:
+
+| # | Milestone Task | Status | Implementation & Deliverable Artifacts |
+| :-: | :--- | :---: | :--- |
+| **1** | **Problem Definition & Scope** | ✅ **DONE** | [docs/PROBLEM_DEFINITION_AND_SCOPE.md](file:///c:/Users/pushk/Documents/Projects/Devops/docs/PROBLEM_DEFINITION_AND_SCOPE.md)<br>• Problem statement, pain points, stakeholder matrix, measurable objectives, constraints & approved MVP scope. |
+| **2** | **Agile Planning & DevOps Workflow** | ✅ **DONE** | [docs/AGILE_PLANNING_AND_KANBAN.md](file:///c:/Users/pushk/Documents/Projects/Devops/docs/AGILE_PLANNING_AND_KANBAN.md) & [docs/DEVOPS_WORKFLOW.md](file:///c:/Users/pushk/Documents/Projects/Devops/docs/DEVOPS_WORKFLOW.md)<br>• 10 User stories with Gherkin acceptance criteria, Product Backlog, 10-Task Kanban Board, Sprint Plan, Definition of Done, and DevOps lifecycle diagram. |
+| **3** | **Requirements, Architecture & Tech Setup** | ✅ **DONE** | [docs/ARCHITECTURE_AND_API.md](file:///c:/Users/pushk/Documents/Projects/Devops/docs/ARCHITECTURE_AND_API.md) & [docs/SRS_AND_USE_CASES.md](file:///c:/Users/pushk/Documents/Projects/Devops/docs/SRS_AND_USE_CASES.md)<br>• 3-tier architecture diagram, database ERD, REST API specification, Maven build setup & MySQL/H2 schemas. |
+| **4** | **Git & GitHub Repo Initialization** | ✅ **DONE** | [docs/GIT_WORKFLOW_EVIDENCE.md](file:///c:/Users/pushk/Documents/Projects/Devops/docs/GIT_WORKFLOW_EVIDENCE.md)<br>• Repository URL, `.gitignore`, `.github/` PR & Issue templates, branch naming conventions, and initial skeleton commits. |
+| **5** | **Feature Development with Branching** | ✅ **DONE** | [docs/GIT_WORKFLOW_EVIDENCE.md](file:///c:/Users/pushk/Documents/Projects/Devops/docs/GIT_WORKFLOW_EVIDENCE.md)<br>• Feature branch `feature/request-submission`, Customer submission workflow, document upload, commit logs, PR & merge into `main`. |
+| **6** | **MVP Completion & Git Collaboration** | ✅ **DONE** | [docs/GIT_WORKFLOW_EVIDENCE.md](file:///c:/Users/pushk/Documents/Projects/Devops/docs/GIT_WORKFLOW_EVIDENCE.md) & [docs/CHANGELOG.md](file:///c:/Users/pushk/Documents/Projects/Devops/docs/CHANGELOG.md)<br>• Feature branch `feature/reviewer-dashboard`, intentional merge conflict in `CHANGELOG.md` resolved in commit `f9d9565`, and annotated release tag `v1.0.0`. |
+| **7** | **Jenkins Installation & CI Job** | ✅ **DONE** | [Jenkinsfile](file:///c:/Users/pushk/Documents/Projects/Devops/Jenkinsfile) & [docs/JENKINS_CI_CD_EVIDENCE.md](file:///c:/Users/pushk/Documents/Projects/Devops/docs/JENKINS_CI_CD_EVIDENCE.md)<br>• Configured Jenkins pipeline with SCM polling (`pollSCM('H/15 * * * *')`), Maven compile & test stage, and Spring Boot JAR artifact archiving. |
+| **8** | **Pipeline as Code & Server Deployment** | ✅ **DONE** | [Jenkinsfile](file:///c:/Users/pushk/Documents/Projects/Devops/Jenkinsfile) & [docs/JENKINS_CI_CD_EVIDENCE.md](file:///c:/Users/pushk/Documents/Projects/Devops/docs/JENKINS_CI_CD_EVIDENCE.md)<br>• Declarative Jenkinsfile with parameterized settings (`DEPLOY_ENV`, `IMAGE_TAG`), deployment to Nginx & Docker Compose, and console run evidence. |
+| **9** | **Selenium Test Design & Local Execution** | ✅ **DONE** | [tests/selenium/](file:///c:/Users/pushk/Documents/Projects/Devops/tests/selenium/) & [docs/SELENIUM_TESTING_EVIDENCE.md](file:///c:/Users/pushk/Documents/Projects/Devops/docs/SELENIUM_TESTING_EVIDENCE.md)<br>• 5 Critical user journeys, Page Object Model, Maven headless Chrome runner, and automatic failure screenshot watcher (`TestWatcher`). |
+| **10** | **Continuous Testing in Jenkins** | ✅ **DONE** | [docs/JENKINS_CI_CD_EVIDENCE.md](file:///c:/Users/pushk/Documents/Projects/Devops/docs/JENKINS_CI_CD_EVIDENCE.md)<br>• Selenium stage integrated into Jenkinsfile with JUnit report publishing, deployment blocked upon deliberate defect, defect fixed, and rerun passed. |
+| **11** | **Docker Image & Container Lifecycle** | ✅ **DONE** | [Dockerfile.backend](file:///c:/Users/pushk/Documents/Projects/Devops/Dockerfile.backend), [Dockerfile.frontend](file:///c:/Users/pushk/Documents/Projects/Devops/Dockerfile.frontend), [docker-compose.yml](file:///c:/Users/pushk/Documents/Projects/Devops/docker-compose.yml) & [docs/DOCKER_LIFECYCLE_EVIDENCE.md](file:///c:/Users/pushk/Documents/Projects/Devops/docs/DOCKER_LIFECYCLE_EVIDENCE.md)<br>• Multi-stage build definitions, port mapping, container logs, stop/restart/remove command logs and running container verification. |
+| **12** | **Configuration Management Scripts** | ✅ **DONE** | [ansible/](file:///c:/Users/pushk/Documents/Projects/Devops/ansible/) & [docs/ANSIBLE_PROVISIONING_AND_ROLLBACK.md](file:///c:/Users/pushk/Documents/Projects/Devops/docs/ANSIBLE_PROVISIONING_AND_ROLLBACK.md)<br>• Server prerequisites specification (packages, users, ports, directories), Ansible inventory, modular roles (`docker`, `app`), and master `playbook.yml`. |
+| **13** | **Automated Rollback & Reliability Validation**| ✅ **DONE** | [ansible/rollback.yml](file:///c:/Users/pushk/Documents/Projects/Devops/ansible/rollback.yml) & [docs/ANSIBLE_PROVISIONING_AND_ROLLBACK.md](file:///c:/Users/pushk/Documents/Projects/Devops/docs/ANSIBLE_PROVISIONING_AND_ROLLBACK.md)<br>• Clean target provisioning, idempotency verification (`changed=0`), automated health check probing (`/api/health`), and automated rollback execution log. |
+
+---
+
 ## 📄 License & Attribution
 
 Developed by **Pushkar Waykole** (Roll No: **23102C0012**) for the BE VII DevOps Project, Academic Year 2026–2027.
+
