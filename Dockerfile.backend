@@ -1,21 +1,17 @@
 # =========================================================================
 # Stage 1: Build Java Spring Boot Application
 # =========================================================================
-FROM eclipse-temurin:21-jdk-alpine AS builder
+FROM maven:3.9.6-eclipse-temurin-21-alpine AS builder
 
 WORKDIR /app
 
-# Copy Maven wrapper and pom
-COPY .mvn/ .mvn/
-COPY mvnw pom.xml ./
-RUN chmod +x ./mvnw
+# Copy pom.xml and cache dependencies
+COPY pom.xml ./
+RUN mvn dependency:go-offline -B
 
-# Resolve dependencies cache
-RUN ./mvnw dependency:go-offline -B
-
-# Copy source code and build
+# Copy source code and build executable JAR
 COPY src ./src
-RUN ./mvnw clean package -DskipTests
+RUN mvn clean package -DskipTests
 
 # =========================================================================
 # Stage 2: Minimal Production JRE Runtime

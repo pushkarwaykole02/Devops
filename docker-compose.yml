@@ -46,7 +46,7 @@ services:
       PORT: 8080
       UPLOAD_DIR: /app/uploads
     ports:
-      - "8080:8080"
+      - "${BACKEND_PORT:-8082}:8080"
     volumes:
       - uploads_data:/app/uploads
     depends_on:
