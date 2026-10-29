@@ -10,7 +10,7 @@
 ## 1. Jenkins Job Configuration
 
 - **Job Type**: Multibranch / Declarative Pipeline
-- **Repository URL**: `https://github.com/pushkarwaykole/automated-broadband-workflow.git`
+- **Repository URL**: `https://github.com/pushkarwaykole02/Devops.git`
 - **Branch Specifier**: `*/main` (and PR feature branches)
 - **Script Path**: `Jenkinsfile`
 - **Build Discarder**: Keeps last 15 builds with log rotator

@@ -2,6 +2,27 @@ version: '3.8'
 
 services:
   # ---------------------------------------------------------------------------
+  # 0. Jenkins CI/CD Server (Viva Demo - http://localhost:8090)
+  # ---------------------------------------------------------------------------
+  jenkins:
+    image: jenkins/jenkins:lts-jdk21
+    container_name: telecom-jenkins
+    restart: always
+    privileged: true
+    user: root
+    ports:
+      - "8090:8080"
+      - "50000:50000"
+    volumes:
+      - jenkins_home:/var/jenkins_home
+      - /var/run/docker.sock:/var/run/docker.sock
+      - .:/workspace/broadband-workflow:ro
+    environment:
+      JAVA_OPTS: "-Djenkins.install.runSetupWizard=false"
+    networks:
+      - telecom-network
+
+  # ---------------------------------------------------------------------------
   # 1. MySQL Database Service
   # ---------------------------------------------------------------------------
   mysql-db:
@@ -88,6 +109,8 @@ volumes:
   mysql_data:
     driver: local
   uploads_data:
+    driver: local
+  jenkins_home:
     driver: local
 
 networks:
