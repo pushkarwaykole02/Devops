@@ -49,14 +49,18 @@ pipeline {
         // -------------------------------------------------------------
         stage('Checkout SCM') {
             steps {
-                echo "===> Checking out branch ${env.BRANCH_NAME ?: 'main'} from Git..."
-                checkout scm
+                echo "====> Checking out branch ${env.BRANCH_NAME ?: 'main'} from Git..."
                 script {
-                    if (isUnix()) {
-                        sh 'git status && git log -1 --oneline'
-                    } else {
-                        bat 'git status && git log -1 --oneline'
+                    try {
+                        checkout scm
+                        echo 'Checked out via SCM configuration.'
+                    } catch (e) {
+                        echo 'SCM not configured - loading from mounted workspace...'
+                        sh 'cp -rn /workspace/broadband-workflow/. . 2>/dev/null || true'
+                        echo 'Workspace loaded from /workspace/broadband-workflow'
                     }
+                    sh 'git -C /workspace/broadband-workflow log -3 --oneline || echo Git-log-unavailable'
+                    sh 'ls -la'
                 }
             }
         }
@@ -70,7 +74,7 @@ pipeline {
                 dir('backend') {
                     script {
                         if (isUnix()) {
-                            sh './mvnw clean test'
+                            sh 'chmod +x mvnw && ./mvnw clean test'
                         } else {
                             bat '''
                                 @echo off
@@ -122,7 +126,7 @@ pipeline {
                 dir('backend') {
                     script {
                         if (isUnix()) {
-                            sh './mvnw package -DskipTests'
+                            sh 'chmod +x mvnw && ./mvnw package -DskipTests'
                         } else {
                             bat '''
                                 @echo off
@@ -154,7 +158,7 @@ pipeline {
                     dir('tests/selenium') {
                         script {
                             if (isUnix()) {
-                                sh './mvnw test -Dheadless=true'
+                                sh 'chmod +x mvnw && ./mvnw test -Dheadless=true'
                             } else {
                                 bat '''
                                     @echo off
